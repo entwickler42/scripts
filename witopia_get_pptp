@@ -1,0 +1,30 @@
+#!/bin/bash
+
+DESTDIR=${1:-.}
+rm $DESTDIR/witopia_vpn_* &> /dev/null
+wget -o /dev/null -O - http://wiki.witopia.net/wiki/Selecting_your_WiTopia_PPTP_VPN_Service_Gateway | 
+	sed -r -n -e 's/.+(pptp.+) \((.+)\)/\1 \2/p' | 
+	while read line; do
+		SERVER=$(echo $line | sed -r -e 's/(pptp.+witopia.net) .+/\1/')
+		NAME=$(echo $line | sed -r -e 's/pptp.+witopia.net (.+)/\1/')
+		NAME=$(echo $NAME | sed -r -e 's/[,]//g;s/ /_/g')
+		cat > $DESTDIR/witopia_vpn_$NAME << EOF
+pty "pptp $SERVER --nolaunchpppd --nobuffer"
+lock
+noauth
+name refowe@witopia
+remotename witopia
+ipparam ANONVPN
+require-mppe-128
+mppe-stateful
+usepeerdns
+defaultroute
+replacedefaultroute
+maxfail 1
+lcp-echo-failure 3
+lcp-echo-interval 3
+mtu 1300 
+mru 1000
+EOF
+	done
+

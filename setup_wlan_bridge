@@ -1,0 +1,16 @@
+#!/bin/bash
+
+ifconfig eth0 down
+ifconfig wlan0 down
+
+brctrl addbr br0
+brctrl addif eth0 br0
+brctrl addif wlan0 br0
+
+iwconfig wlan0 mode ad-hoc
+iwconfig wlan0 enc 1234567890
+iwconfig wlan0 essid ITB.FX
+
+ifconfig eth0 0.0.0.0
+ifconfig wlan0 0.0.0.0
+dhclient br0

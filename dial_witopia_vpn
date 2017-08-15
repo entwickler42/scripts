@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function random_peer
+{
+	local peers=( $(ls /etc/ppp/peers/witopia_vpn_*) )
+	local idx_peers=$RANDOM
+	let "idx_peers %= ${#peers[*]}"
+	peer=${peers[$idx_peers]##*/}
+}
+
+while true 
+do
+	random_peer
+	echo connecting to $peer
+	pppd nodetach debug call $peer
+	sleep 3
+done
